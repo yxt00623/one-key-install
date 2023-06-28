@@ -16,6 +16,8 @@ if ! grep -q "cgroup_enable=blkio" /etc/default/grub; then
   sudo reboot
 fi
 
+
+
 # 更新系统后继续执行脚本
 
 cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
@@ -34,7 +36,7 @@ deb https://mirrors.aliyun.com/kubernetes/apt kubernetes-xenial main
 EOF
 
 sudo apt-get update
-sudo apt-get install -y apt-transport-https ca-certificates curl containerd
+sudo apt-get install -y apt-transport-https ca-certificates curl
 
 # 指定 kubeadm、kubelet 和 kubectl 的版本
 KUBEADM_VERSION="$KUBERNETES_VERSION-00"
@@ -62,16 +64,15 @@ sudo systemctl daemon-reload
 sudo systemctl restart docker
 
 # 初始化 Kubernetes 主节点
-sudo kubeadm init --apiserver-advertise-address=$local_ip --pod-network-cidr=172.16.0.0/16 --kubernetes-version=v$KUBERNETES_VERSION
+sudo kubeadm init --apiserver-advertise-address=$local_ip --pod-network-cidr=192.168.0.0/16 --kubernetes-version=v$KUBERNETES_VERSION
 
 # 配置 Kubernetes 集群
 mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
-# 安装Calico
-kubectl apply -f https://docs.projectcalico.org/v3.21/manifests/calico.yaml
-
+kubectl create -f https://docs.projectcalico.org/archive/v3.19/manifests/tigera-operator.yaml
+kubectl create -f https://docs.projectcalico.org/archive/v3.19/manifests/custom-resources.yaml
 # 打印加入节点的命令
 join_command=$(kubeadm token create --print-join-command)
 echo "保存下面的加入节点命令以便后续使用："
