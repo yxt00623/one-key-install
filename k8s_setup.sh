@@ -3,7 +3,7 @@
 set -x
 
 # 指定 Kubernetes 版本
-KUBERNETES_VERSION="1.23.0"
+KUBERNETES_VERSION="1.22.0"
 
 cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
 br_netfilter
