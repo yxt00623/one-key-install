@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: nginx-config
-  namespace: default  # 请确保这个namespace和你的Ingress Controller在同一个namespace
-data:
-  proxy-connect-timeout: "10s"
-  proxy-read-timeout: "10s"
-  client-max-body-size: "2m"

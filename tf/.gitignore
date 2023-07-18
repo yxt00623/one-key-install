@@ -1,0 +1,23 @@
+# 忽略 Terraform 相关的文件和文件夹
+*.tgz
+charts/*.tgz
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+
+# 忽略编译和构建生成的文件
+/bin/
+/build/
+/dist/
+/target/
+
+# 忽略操作系统生成的文件
+.DS_Store
+Thumbs.db
+
+# 忽略编辑器和IDE生成的文件
+.idea/
+.vscode/
+*.swp
+
+# 添加其他您希望忽略的文件和文件夹
