@@ -20,7 +20,10 @@ chmod a+x k3s install.sh
 sudo cp k3s-airgap-images-amd64.tar /var/lib/rancher/k3s/agent/images/
 sudo cp k3s /usr/local/bin/
 
-INSTALL_K3S_SKIP_DOWNLOAD=true ./install.sh --node-name master --docker
+export INSTALL_K3S_EXEC="--docker"
+INSTALL_K3S_SKIP_DOWNLOAD=true ./install.sh --node-name master 
+
+mkdir -p /root/.kube
 sudo cat /etc/rancher/k3s/k3s.yaml > ~/.kube/config
 
 # 查看错误
@@ -36,13 +39,21 @@ sudo cat /etc/rancher/k3s/k3s.yaml > ~/.kube/config
 # 卸载
 # /usr/local/bin/k3s-uninstall.sh
 
+
+# docker 私有仓库
+mkdir -p /etc/docker
+echo '{"insecure-registries": ["registry.wll:5000"]}' | sudo tee /etc/docker/daemon.json
 # 安装docker
 
-#sudo apt update
-#sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
-#curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-#echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-#sudo apt update
-#sudo apt install -y docker-ce docker-ce-cli containerd.io
-#sudo systemctl start docker
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io
+sudo systemctl start docker
 
+# 看是否需要修改
+# vi /etc/systemd/system/k3s.service
+
+
+# docker run --name mysql57 -e MYSQL_ROOT_PASSWORD=qwerty -p 23306:3306 -d mysql:5.7
