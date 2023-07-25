@@ -1,266 +1,470 @@
-# Kibana Helm Chart
+<!--- app-name: Kibana -->
 
-[![Build Status](https://img.shields.io/jenkins/s/https/devops-ci.elastic.co/job/elastic+helm-charts+main.svg)](https://devops-ci.elastic.co/job/elastic+helm-charts+main/) [![Artifact HUB](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/elastic)](https://artifacthub.io/packages/search?repo=elastic)
+# Kibana packaged by Bitnami
 
-This Helm chart is a lightweight way to configure and run our official
-[Kibana Docker image][].
+Kibana is an open source, browser based analytics and search dashboard for Elasticsearch. Kibana strives to be easy to get started with, while also being flexible and powerful.
 
-> **Warning**
-> When it comes to running the Elastic on Kubernetes infrastructure, we
-> recommend [Elastic Cloud on Kubernetes][] (ECK) as the best way to run and manage
-> the Elastic Stack.
->
-> ECK offers many operational benefits for both our basic-tier and our
-> enterprise-tier customers, such as spinning up cluster nodes that were lost on
-> failed infrastructure, seamless upgrades, rolling cluster changes, and much
-> much more.
->
-> With the release of the Elastic Stack Helm charts for Elastic version 8.5.1,
-> we are handing over the ongoing maintenance of our Elastic Stack Helm charts
-> to the community and contributors. This repository will finally be archived
-> after 6 months time. Elastic Stacks deployed on Kubernetes through Helm charts
-> will still be fully supported under EOL limitations.
->
-> Since we want to provide an even better experience for our customers by
-> running the Elastic Stack on Kubernetes, we will continue maintaining the
-> Helm charts applicable to ECK Custom Resources. These charts can be found in
-> the [ECK repository][eck-charts].
->
-> Helm charts will currently be maintained for ECK Enterprise-tier customers,
-> however, we encourage the community to engage with the existing Helm charts
-> for the Elastic Stack and continue supporting their ongoing maintenance.
->
-> See <https://github.com/elastic/helm-charts/issues/1731> for more details.
+[Overview of Kibana](https://www.elastic.co/products/kibana)
 
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+Trademarks: This software listing is packaged by Bitnami. The respective trademarks mentioned in the offering are owned by the respective companies, and use of them does not imply any affiliation or endorsement.
 
+## TL;DR
 
-- [Requirements](#requirements)
-- [Installing](#installing)
-  - [Install a released version using the Helm repository](#install-a-released-version-using-the-helm-repository)
-  - [Install a development version using the main branch](#install-a-development-version-using-the-main-branch)
-- [Upgrading](#upgrading)
-- [Usage notes](#usage-notes)
-- [Configuration](#configuration)
-- [FAQ](#faq)
-  - [How to deploy this chart on a specific K8S distribution?](#how-to-deploy-this-chart-on-a-specific-k8s-distribution)
-  - [How to use Kibana with security (authentication and TLS) enabled?](#how-to-use-kibana-with-security-authentication-and-tls-enabled)
-  - [How to install plugins?](#how-to-install-plugins)
-  - [How to import objects post-deployment?](#how-to-import-objects-post-deployment)
-- [Contributing](#contributing)
+```console
+helm install my-release oci://registry-1.docker.io/bitnamicharts/kibana --set elasticsearch.hosts[0]=<Hostname of your ES instance> --set elasticsearch.port=<port of your ES instance>
+```
 
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-<!-- Use this to update TOC: -->
-<!-- docker run --entrypoint doctoc --rm -it -v $(pwd):/usr/src jorgeandrada/doctoc README.md --github --no-title -->
+## Introduction
 
+This chart bootstraps a [Kibana](https://github.com/bitnami/containers/tree/main/bitnami/kibana) deployment on a [Kubernetes](https://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
 
-## Requirements
+Bitnami charts can be used with [Kubeapps](https://kubeapps.dev/) for deployment and management of Helm Charts in clusters.
 
-See [supported configurations][] for more details.
+Looking to use Kibana in production? Try [VMware Application Catalog](https://bitnami.com/enterprise), the enterprise edition of Bitnami Application Catalog.
 
+## Prerequisites
 
-## Installing
+- Kubernetes 1.19+
+- Helm 3.2.0+
+- PV provisioner support in the underlying infrastructure
+- ReadWriteMany volumes for deployment scaling
 
-### Install a released version using the Helm repository
+## Installing the Chart
 
-* Add the Elastic Helm charts repo:
-`helm repo add elastic https://helm.elastic.co`
+To install the chart with the release name `my-release`:
 
-* Install it: `helm install kibana elastic/kibana`
+```console
+helm install my-release oci://registry-1.docker.io/bitnamicharts/kibana \
+  --set elasticsearch.hosts[0]=<Hostname of your ES instance> \
+  --set elasticsearch.port=<port of your ES instance> \
+```
 
+This chart requires an Elasticsearch instance to work. You can use an already existing Elasticsearch instance. These commands deploy Kibana on the Kubernetes cluster in the default configuration. The [Parameters](#parameters) section lists the parameters that can be configured during installation.
 
-### Install a development version using the main branch
+> **Tip**: List all releases using `helm list`
 
-* Clone the git repo: `git clone git@github.com:elastic/helm-charts.git`
+## Uninstalling the Chart
 
-* Install it: `helm install kibana ./helm-charts/kibana --set imageTag=8.5.1`
+To uninstall/delete the `my-release` statefulset:
+
+```console
+helm delete my-release
+```
+
+The command removes all the Kubernetes components associated with the chart and deletes the release. Use the option `--purge` to delete all history too.
+
+## Parameters
+
+### Global parameters
+
+| Name                      | Description                                     | Value |
+| ------------------------- | ----------------------------------------------- | ----- |
+| `global.imageRegistry`    | Global Docker image registry                    | `""`  |
+| `global.imagePullSecrets` | Global Docker registry secret names as an array | `[]`  |
+| `global.storageClass`     | Global StorageClass for Persistent Volume(s)    | `""`  |
+
+### Common parameters
+
+| Name                     | Description                                                                                               | Value           |
+| ------------------------ | --------------------------------------------------------------------------------------------------------- | --------------- |
+| `kubeVersion`            | Force target Kubernetes version (using Helm capabilities if not set)                                      | `""`            |
+| `nameOverride`           | String to partially override common.names.fullname template with a string (will prepend the release name) | `""`            |
+| `fullnameOverride`       | String to fully override common.names.fullname template with a string                                     | `""`            |
+| `commonAnnotations`      | Annotations to add to all deployed objects                                                                | `{}`            |
+| `commonLabels`           | Labels to add to all deployed objects                                                                     | `{}`            |
+| `extraDeploy`            | A list of extra kubernetes resources to be deployed                                                       | `[]`            |
+| `clusterDomain`          | Kubernetes cluster domain name                                                                            | `cluster.local` |
+| `diagnosticMode.enabled` | Enable diagnostic mode (all probes will be disabled and the command will be overridden)                   | `false`         |
+| `diagnosticMode.command` | Command to override all containers in the the deployment(s)/statefulset(s)                                | `["sleep"]`     |
+| `diagnosticMode.args`    | Args to override all containers in the the deployment(s)/statefulset(s)                                   | `["infinity"]`  |
+
+### Kibana parameters
+
+| Name                                          | Description                                                                                                                                               | Value                    |
+| --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| `image.registry`                              | Kibana image registry                                                                                                                                     | `docker.io`              |
+| `image.repository`                            | Kibana image repository                                                                                                                                   | `bitnami/kibana`         |
+| `image.tag`                                   | Kibana image tag (immutable tags are recommended)                                                                                                         | `8.8.2-debian-11-r4`     |
+| `image.digest`                                | Kibana image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag                                                    | `""`                     |
+| `image.pullPolicy`                            | Kibana image pull policy                                                                                                                                  | `IfNotPresent`           |
+| `image.pullSecrets`                           | Specify docker-registry secret names as an array                                                                                                          | `[]`                     |
+| `image.debug`                                 | Enable %%MAIN_CONTAINER%% image debug mode                                                                                                                | `false`                  |
+| `replicaCount`                                | Number of replicas of the Kibana Pod                                                                                                                      | `1`                      |
+| `updateStrategy.type`                         | Set up update strategy for Kibana installation.                                                                                                           | `RollingUpdate`          |
+| `schedulerName`                               | Alternative scheduler                                                                                                                                     | `""`                     |
+| `priorityClassName`                           | %%MAIN_CONTAINER_NAME%% pods' priorityClassName                                                                                                           | `""`                     |
+| `terminationGracePeriodSeconds`               | In seconds, time the given to the %%MAIN_CONTAINER_NAME%% pod needs to terminate gracefully                                                               | `""`                     |
+| `topologySpreadConstraints`                   | Topology Spread Constraints for pod assignment                                                                                                            | `[]`                     |
+| `hostAliases`                                 | Add deployment host aliases                                                                                                                               | `[]`                     |
+| `plugins`                                     | Array containing the Kibana plugins to be installed in deployment                                                                                         | `[]`                     |
+| `savedObjects.urls`                           | Array containing links to NDJSON files to be imported during Kibana initialization                                                                        | `[]`                     |
+| `savedObjects.configmap`                      | Configmap containing NDJSON files to be imported during Kibana initialization (evaluated as a template)                                                   | `""`                     |
+| `extraConfiguration`                          | Extra settings to be added to the default kibana.yml configmap that the chart creates (unless replaced using `configurationCM`). Evaluated as a template  | `{}`                     |
+| `configurationCM`                             | ConfigMap containing a kibana.yml file that will replace the default one specified in configuration.yaml                                                  | `""`                     |
+| `command`                                     | Override default container command (useful when using custom images)                                                                                      | `[]`                     |
+| `args`                                        | Override default container args (useful when using custom images)                                                                                         | `[]`                     |
+| `lifecycleHooks`                              | for the %%MAIN_CONTAINER_NAME%% container(s) to automate configuration before or after startup                                                            | `{}`                     |
+| `extraEnvVars`                                | Array containing extra env vars to configure Kibana                                                                                                       | `[]`                     |
+| `extraEnvVarsCM`                              | ConfigMap containing extra env vars to configure Kibana                                                                                                   | `""`                     |
+| `extraEnvVarsSecret`                          | Secret containing extra env vars to configure Kibana (in case of sensitive data)                                                                          | `""`                     |
+| `extraVolumes`                                | Array to add extra volumes. Requires setting `extraVolumeMounts`                                                                                          | `[]`                     |
+| `extraVolumeMounts`                           | Array to add extra mounts. Normally used with `extraVolumes`                                                                                              | `[]`                     |
+| `volumePermissions.enabled`                   | Enable init container that changes volume permissions in the data directory (for cases where the default k8s `runAsUser` and `fsUser` values do not work) | `false`                  |
+| `volumePermissions.image.registry`            | Init container volume-permissions image registry                                                                                                          | `docker.io`              |
+| `volumePermissions.image.repository`          | Init container volume-permissions image name                                                                                                              | `bitnami/os-shell`       |
+| `volumePermissions.image.tag`                 | Init container volume-permissions image tag                                                                                                               | `11-debian-11-r2`        |
+| `volumePermissions.image.digest`              | Init container volume-permissions image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag                         | `""`                     |
+| `volumePermissions.image.pullPolicy`          | Init container volume-permissions image pull policy                                                                                                       | `IfNotPresent`           |
+| `volumePermissions.image.pullSecrets`         | Init container volume-permissions image pull secrets                                                                                                      | `[]`                     |
+| `volumePermissions.resources`                 | Volume Permissions resources                                                                                                                              | `{}`                     |
+| `persistence.enabled`                         | Enable persistence                                                                                                                                        | `true`                   |
+| `persistence.storageClass`                    | Kibana data Persistent Volume Storage Class                                                                                                               | `""`                     |
+| `persistence.existingClaim`                   | Provide an existing `PersistentVolumeClaim`                                                                                                               | `""`                     |
+| `persistence.accessModes`                     | Persistent Volume access modes                                                                                                                            | `["ReadWriteOnce"]`      |
+| `persistence.size`                            | Size for the PV                                                                                                                                           | `10Gi`                   |
+| `persistence.annotations`                     | Persistent Volume Claim annotations                                                                                                                       | `{}`                     |
+| `persistence.subPath`                         | The subdirectory of the volume to mount to, useful in dev environments and one PV for multiple services                                                   | `""`                     |
+| `persistence.selector`                        | Selector to match an existing Persistent Volume for WordPress data PVC                                                                                    | `{}`                     |
+| `persistence.dataSource`                      | Custom PVC data source                                                                                                                                    | `{}`                     |
+| `startupProbe.enabled`                        | Enable/disable the startup probe                                                                                                                          | `false`                  |
+| `startupProbe.initialDelaySeconds`            | Delay before startup probe is initiated                                                                                                                   | `120`                    |
+| `startupProbe.periodSeconds`                  | How often to perform the probe                                                                                                                            | `10`                     |
+| `startupProbe.timeoutSeconds`                 | When the probe times out                                                                                                                                  | `5`                      |
+| `startupProbe.failureThreshold`               | Minimum consecutive failures for the probe to be considered failed after having succeeded.                                                                | `6`                      |
+| `startupProbe.successThreshold`               | Minimum consecutive successes for the probe to be considered successful after having failed.                                                              | `1`                      |
+| `livenessProbe.enabled`                       | Enable/disable the Liveness probe                                                                                                                         | `true`                   |
+| `livenessProbe.initialDelaySeconds`           | Delay before liveness probe is initiated                                                                                                                  | `120`                    |
+| `livenessProbe.periodSeconds`                 | How often to perform the probe                                                                                                                            | `10`                     |
+| `livenessProbe.timeoutSeconds`                | When the probe times out                                                                                                                                  | `5`                      |
+| `livenessProbe.failureThreshold`              | Minimum consecutive failures for the probe to be considered failed after having succeeded.                                                                | `6`                      |
+| `livenessProbe.successThreshold`              | Minimum consecutive successes for the probe to be considered successful after having failed.                                                              | `1`                      |
+| `readinessProbe.enabled`                      | Enable/disable the Readiness probe                                                                                                                        | `true`                   |
+| `readinessProbe.initialDelaySeconds`          | Delay before readiness probe is initiated                                                                                                                 | `30`                     |
+| `readinessProbe.periodSeconds`                | How often to perform the probe                                                                                                                            | `10`                     |
+| `readinessProbe.timeoutSeconds`               | When the probe times out                                                                                                                                  | `5`                      |
+| `readinessProbe.failureThreshold`             | Minimum consecutive failures for the probe to be considered failed after having succeeded.                                                                | `6`                      |
+| `readinessProbe.successThreshold`             | Minimum consecutive successes for the probe to be considered successful after having failed.                                                              | `1`                      |
+| `customStartupProbe`                          | Custom liveness probe for the Web component                                                                                                               | `{}`                     |
+| `customLivenessProbe`                         | Custom liveness probe for the Web component                                                                                                               | `{}`                     |
+| `customReadinessProbe`                        | Custom readiness probe for the Web component                                                                                                              | `{}`                     |
+| `forceInitScripts`                            | Force execution of init scripts                                                                                                                           | `false`                  |
+| `initScriptsCM`                               | Configmap with init scripts to execute                                                                                                                    | `""`                     |
+| `initScriptsSecret`                           | Secret with init scripts to execute (for sensitive data)                                                                                                  | `""`                     |
+| `service.ports.http`                          | Kubernetes Service port                                                                                                                                   | `5601`                   |
+| `service.type`                                | Kubernetes Service type                                                                                                                                   | `ClusterIP`              |
+| `service.nodePorts.http`                      | Specify the nodePort value for the LoadBalancer and NodePort service types                                                                                | `""`                     |
+| `service.clusterIP`                           | %%MAIN_CONTAINER_NAME%% service Cluster IP                                                                                                                | `""`                     |
+| `service.loadBalancerIP`                      | loadBalancerIP if Kibana service type is `LoadBalancer`                                                                                                   | `""`                     |
+| `service.loadBalancerSourceRanges`            | %%MAIN_CONTAINER_NAME%% service Load Balancer sources                                                                                                     | `[]`                     |
+| `service.externalTrafficPolicy`               | Enable client source IP preservation                                                                                                                      | `Cluster`                |
+| `service.annotations`                         | Annotations for Kibana service (evaluated as a template)                                                                                                  | `{}`                     |
+| `service.labels`                              | Extra labels for Kibana service                                                                                                                           | `{}`                     |
+| `service.extraPorts`                          | Extra ports to expose in the service (normally used with the `sidecar` value)                                                                             | `[]`                     |
+| `service.sessionAffinity`                     | Session Affinity for Kubernetes service, can be "None" or "ClientIP"                                                                                      | `None`                   |
+| `service.sessionAffinityConfig`               | Additional settings for the sessionAffinity                                                                                                               | `{}`                     |
+| `ingress.enabled`                             | Enable ingress controller resource                                                                                                                        | `false`                  |
+| `ingress.pathType`                            | Ingress Path type                                                                                                                                         | `ImplementationSpecific` |
+| `ingress.apiVersion`                          | Override API Version (automatically detected if not set)                                                                                                  | `""`                     |
+| `ingress.hostname`                            | Default host for the ingress resource. If specified as "*" no host rule is configured                                                                     | `kibana.local`           |
+| `ingress.path`                                | The Path to Kibana. You may need to set this to '/*' in order to use this with ALB ingress controllers.                                                   | `/`                      |
+| `ingress.annotations`                         | Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations.                          | `{}`                     |
+| `ingress.tls`                                 | Enable TLS configuration for the hostname defined at ingress.hostname parameter                                                                           | `false`                  |
+| `ingress.selfSigned`                          | Create a TLS secret for this ingress record using self-signed certificates generated by Helm                                                              | `false`                  |
+| `ingress.extraHosts`                          | The list of additional hostnames to be covered with this ingress record.                                                                                  | `[]`                     |
+| `ingress.extraPaths`                          | Additional arbitrary path/backend objects                                                                                                                 | `[]`                     |
+| `ingress.extraTls`                            | The tls configuration for additional hostnames to be covered with this ingress record.                                                                    | `[]`                     |
+| `ingress.secrets`                             | If you're providing your own certificates, please use this to add the certificates as secrets                                                             | `[]`                     |
+| `ingress.ingressClassName`                    | IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)                                                                             | `""`                     |
+| `ingress.extraRules`                          | The list of additional rules to be added to this ingress record. Evaluated as a template                                                                  | `[]`                     |
+| `serviceAccount.create`                       | Specifies whether a ServiceAccount should be created                                                                                                      | `true`                   |
+| `serviceAccount.name`                         | Name of the service account to use. If not set and create is true, a name is generated using the fullname template.                                       | `""`                     |
+| `serviceAccount.automountServiceAccountToken` | Automount service account token for the server service account                                                                                            | `true`                   |
+| `serviceAccount.annotations`                  | Annotations for service account. Evaluated as a template. Only used if `create` is `true`.                                                                | `{}`                     |
+| `containerPorts.http`                         | Port to expose at container level                                                                                                                         | `5601`                   |
+| `podSecurityContext.enabled`                  | Enabled %%MAIN_CONTAINER_NAME%% pods' Security Context                                                                                                    | `true`                   |
+| `podSecurityContext.fsGroup`                  | Set %%MAIN_CONTAINER_NAME%% pod's Security Context fsGroup                                                                                                | `1001`                   |
+| `containerSecurityContext.enabled`            | Enabled %%MAIN_CONTAINER_NAME%% containers' Security Context                                                                                              | `true`                   |
+| `containerSecurityContext.runAsUser`          | Set %%MAIN_CONTAINER_NAME%% containers' Security Context runAsUser                                                                                        | `1001`                   |
+| `containerSecurityContext.runAsNonRoot`       | Set %%MAIN_CONTAINER_NAME%% container's Security Context runAsNonRoot                                                                                     | `true`                   |
+| `resources.limits`                            | The resources limits for the container                                                                                                                    | `{}`                     |
+| `resources.requests`                          | The requested resources for the container                                                                                                                 | `{}`                     |
+| `podAffinityPreset`                           | Pod affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`                                                                       | `""`                     |
+| `podAntiAffinityPreset`                       | Pod anti-affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`                                                                  | `soft`                   |
+| `nodeAffinityPreset.type`                     | Node affinity preset type. Ignored if `affinity` is set. Allowed values: `soft` or `hard`                                                                 | `""`                     |
+| `nodeAffinityPreset.key`                      | Node label key to match Ignored if `affinity` is set.                                                                                                     | `""`                     |
+| `nodeAffinityPreset.values`                   | Node label values to match. Ignored if `affinity` is set.                                                                                                 | `[]`                     |
+| `affinity`                                    | Affinity for pod assignment                                                                                                                               | `{}`                     |
+| `nodeSelector`                                | Node labels for pod assignment                                                                                                                            | `{}`                     |
+| `tolerations`                                 | Tolerations for pod assignment                                                                                                                            | `[]`                     |
+| `podAnnotations`                              | Pod annotations                                                                                                                                           | `{}`                     |
+| `podLabels`                                   | Extra labels to add to Pod                                                                                                                                | `{}`                     |
+| `sidecars`                                    | Attach additional containers to the pod                                                                                                                   | `[]`                     |
+| `initContainers`                              | Add additional init containers to the pod                                                                                                                 | `[]`                     |
+| `configuration`                               | Kibana configuration                                                                                                                                      | `{}`                     |
+| `metrics.enabled`                             | Start a side-car prometheus exporter                                                                                                                      | `false`                  |
+| `metrics.service.annotations`                 | Prometheus annotations for the Kibana service                                                                                                             | `{}`                     |
+| `metrics.serviceMonitor.enabled`              | If `true`, creates a Prometheus Operator ServiceMonitor (also requires `metrics.enabled` to be `true`)                                                    | `false`                  |
+| `metrics.serviceMonitor.namespace`            | Namespace in which Prometheus is running                                                                                                                  | `""`                     |
+| `metrics.serviceMonitor.jobLabel`             | The name of the label on the target service to use as the job name in prometheus.                                                                         | `""`                     |
+| `metrics.serviceMonitor.interval`             | Interval at which metrics should be scraped.                                                                                                              | `""`                     |
+| `metrics.serviceMonitor.scrapeTimeout`        | Timeout after which the scrape is ended                                                                                                                   | `""`                     |
+| `metrics.serviceMonitor.relabelings`          | RelabelConfigs to apply to samples before scraping                                                                                                        | `[]`                     |
+| `metrics.serviceMonitor.metricRelabelings`    | MetricRelabelConfigs to apply to samples before ingestion                                                                                                 | `[]`                     |
+| `metrics.serviceMonitor.selector`             | Prometheus instance selector labels                                                                                                                       | `{}`                     |
+| `metrics.serviceMonitor.labels`               | Extra labels for the ServiceMonitor                                                                                                                       | `{}`                     |
+| `metrics.serviceMonitor.honorLabels`          | honorLabels chooses the metric's labels on collisions with target labels                                                                                  | `false`                  |
+
+### Kibana server TLS configuration
+
+| Name                   | Description                                                                    | Value   |
+| ---------------------- | ------------------------------------------------------------------------------ | ------- |
+| `tls.enabled`          | Enable SSL/TLS encryption for Kibana server (HTTPS)                            | `false` |
+| `tls.autoGenerated`    | Create self-signed TLS certificates. Currently only supports PEM certificates. | `false` |
+| `tls.existingSecret`   | Name of the existing secret containing Kibana server certificates              | `""`    |
+| `tls.usePemCerts`      | Use this variable if your secrets contain PEM certificates instead of PKCS12   | `false` |
+| `tls.keyPassword`      | Password to access the PEM key when it is password-protected.                  | `""`    |
+| `tls.keystorePassword` | Password to access the PKCS12 keystore when it is password-protected.          | `""`    |
+| `tls.passwordsSecret`  | Name of a existing secret containing the Keystore or PEM key password          | `""`    |
+
+### Elasticsearch parameters
+
+| Name                                                      | Description                                                                                                              | Value   |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ------- |
+| `elasticsearch.hosts`                                     | List of elasticsearch hosts to connect to.                                                                               | `[]`    |
+| `elasticsearch.port`                                      | Elasticsearch port                                                                                                       | `""`    |
+| `elasticsearch.security.auth.enabled`                     | Set to 'true' if Elasticsearch has authentication enabled                                                                | `false` |
+| `elasticsearch.security.auth.kibanaPassword`              | Password of the 'kibana_system' user, used to authenticate Kibana connection with Elasticsearch.                         | `""`    |
+| `elasticsearch.security.auth.existingSecret`              | Name of the existing secret containing the password for the 'kibana_system' user.                                        | `""`    |
+| `elasticsearch.security.auth.createSystemUser`            | If enabled, Kibana will use Elasticsearch API to create the 'kibana_system' user at startup.                             | `false` |
+| `elasticsearch.security.auth.elasticsearchPasswordSecret` | Name of the existing secret containing the password for the 'elastic' user.                                              | `""`    |
+| `elasticsearch.security.tls.enabled`                      | Set to 'true' if Elasticsearch API uses TLS/SSL (HTTPS)                                                                  | `false` |
+| `elasticsearch.security.tls.verificationMode`             | Verification mode for SSL communications.                                                                                | `full`  |
+| `elasticsearch.security.tls.existingSecret`               | Name of the existing secret containing Elasticsearch Truststore or CA certificate. Required unless verificationMode=none | `""`    |
+| `elasticsearch.security.tls.usePemCerts`                  | Set to 'true' to use PEM certificates instead of PKCS12.                                                                 | `false` |
+| `elasticsearch.security.tls.truststorePassword`           | Password to access the PKCS12 trustore in case it is password-protected.                                                 | `""`    |
+| `elasticsearch.security.tls.passwordsSecret`              | Name of a existing secret containing the Truststore password                                                             | `""`    |
+
+Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
+
+```console
+helm install my-release \
+  --set admin.user=admin-user oci://registry-1.docker.io/bitnamicharts/kibana
+```
+
+The above command sets the Kibana admin user to `admin-user`.
+
+> NOTE: Once this chart is deployed, it is not possible to change the application's access credentials, such as usernames or passwords, using Helm. To change these application credentials after deployment, delete any persistent volumes (PVs) used by the chart and re-deploy it, or use the application's built-in administrative tools if available.
+
+Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example,
+
+```console
+helm install my-release -f values.yaml oci://registry-1.docker.io/bitnamicharts/kibana
+```
+
+> **Tip**: You can use the default [values.yaml](values.yaml)
+
+## Configuration and installation details
+
+### [Rolling vs Immutable tags](https://docs.bitnami.com/containers/how-to/understand-rolling-tags-containers/)
+
+It is strongly recommended to use immutable tags in a production environment. This ensures your deployment does not change automatically if the same tag is updated with a different image.
+
+Bitnami will release a new chart updating its containers if a new version of the main container, significant changes, or critical vulnerabilities exist.
+
+### Change Kibana version
+
+To modify the application version used in this chart, specify a different version of the image using the `image.tag` parameter and/or a different repository using the `image.repository` parameter. Refer to the [chart documentation for more information on these parameters and how to use them with images from a private registry](https://docs.bitnami.com/kubernetes/apps/kibana/configuration/change-image-version/).
+
+### Use custom configuration
+
+The Bitnami Kibana chart supports using custom configuration settings. For example, to mount a custom `kibana.yml` you can create a ConfigMap like the following:
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: myconfig
+data:
+  kibana.yml: |-
+    # Raw text of the file
+```
+
+And now you need to pass the ConfigMap name, to the corresponding parameter: `configurationCM=myconfig`
+
+An alternative is to provide extra configuration settings to the default kibana.yml that the chart deploys. This is done using the `extraConfiguration` value:
+
+```yaml
+extraConfiguration:
+  "server.maxPayloadBytes": 1048576
+  "server.pingTimeout": 1500
+```
+
+### Add extra environment variables
+
+In case you want to add extra environment variables (useful for advanced operations like custom init scripts), you can use the `extraEnvVars` property.
+
+```yaml
+extraEnvVars:
+  - name: ELASTICSEARCH_VERSION
+    value: 6
+```
+
+Alternatively, you can use a ConfigMap or a Secret with the environment variables. To do so, use the `extraEnvVarsCM` or the `extraEnvVarsSecret` values.
+
+### Use custom initialization scripts
+
+For advanced operations, the Bitnami Kibana chart allows using custom initialization scripts that will be mounted in `/docker-entrypoint.init-db`. Mount these extra scripts using a ConfigMap or a Secret (in case of sensitive data) and specify them via the `initScriptsCM` and `initScriptsSecret` chart parameters. Refer to the [chart documentation on custom initialization scripts](https://docs.bitnami.com/kubernetes/apps/kibana/administration/use-custom-init-scripts/) for an example.
+
+### Install plugins
+
+The Bitnami Kibana chart allows you to install a set of plugins at deployment time using the `plugins` chart parameter. Refer to the [chart documentation on installing plugins](https://docs.bitnami.com/kubernetes/apps/kibana/configuration/install-plugins/) for an example.
+
+```console
+elasticsearch.hosts[0]=elasticsearch-host
+elasticsearch.port=9200
+plugins[0]=https://github.com/fbaligand/kibana-enhanced-table/releases/download/v1.5.0/enhanced-table-1.5.0_7.3.2.zip
+```
+
+> **NOTE** Make sure that the plugin is available for the Kibana version you are deploying
+
+### Import saved objects
+
+If you have visualizations and dashboards (in NDJSON format) to import to Kibana, create a ConfigMap that includes them and then install the chart with the `savedObjects.configmap` or  `savedObjects.urls` parameters. Refer to the [chart documentation on importing saved objects](https://docs.bitnami.com/kubernetes/apps/kibana/configuration/import-saved-objects/) for an example.
+
+### Use Sidecars and Init Containers
+
+If additional containers are needed in the same pod (such as additional metrics or logging exporters), they can be defined using the `sidecars` config parameter. Similarly, extra init containers can be added using the `initContainers` parameter.
+
+Refer to the chart documentation for more information on, and examples of, configuring and using [sidecars and init containers](https://docs.bitnami.com/kubernetes/apps/kibana/configuration/configure-sidecar-init-containers/).
+
+#### Add a sample Elasticsearch container as sidecar
+
+This chart requires an Elasticsearch instance to work. For production, the options are to use an already existing Elasticsearch instance or deploy the [Elasticsearch chart](https://github.com/bitnami/charts/tree/main/bitnami/elasticsearch) with the [`global.kibanaEnabled=true` parameter](https://github.com/bitnami/charts/tree/main/bitnami/elasticsearch#enable-bundled-kibana).
+
+For testing purposes, use a sidecar Elasticsearch container setting the following parameters during the Kibana chart installation:
+
+```text
+elasticsearch.hosts[0]=localhost
+elasticsearch.port=9200
+sidecars[0].name=elasticsearch
+sidecars[0].image=bitnami/elasticsearch:latest
+sidecars[0].imagePullPolicy=IfNotPresent
+sidecars[0].ports[0].name=http
+sidecars[0].ports[0].containerPort=9200
+```
+
+### Set Pod affinity
+
+This chart allows you to set custom Pod affinity using the `affinity` parameter. Find more information about Pod affinity in the [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity).
+
+As an alternative, you can use one of the preset configurations for pod affinity, pod anti-affinity, and node affinity available at the [bitnami/common](https://github.com/bitnami/charts/tree/main/bitnami/common#affinities) chart. To do so, set the `podAffinityPreset`, `podAntiAffinityPreset`, or `nodeAffinityPreset` parameters.
+
+## Persistence
+
+The [Bitnami Kibana](https://github.com/bitnami/containers/tree/main/bitnami/kibana) image can persist data. If enabled, the persisted path is `/bitnami/kibana` by default.
+
+The chart mounts a [Persistent Volume](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) at this location. The volume is created using dynamic volume provisioning.
+
+### Add extra volumes
+
+The Bitnami Kibana chart supports mounting extra volumes (either PVCs, secrets or configmaps) by using the `extraVolumes` and `extraVolumeMounts` property. This can be combined with advanced operations like adding extra init containers and sidecars.
+
+### Adjust permissions of persistent volume mountpoint
+
+As the image run as non-root by default, it is necessary to adjust the ownership of the persistent volume so that the container can write data into it.
+
+By default, the chart is configured to use Kubernetes Security Context to automatically change the ownership of the volume. However, this feature does not work in all Kubernetes distributions.
+As an alternative, this chart supports using an initContainer to change the ownership of the volume before mounting it in the final destination.
+
+You can enable this initContainer by setting `volumePermissions.enabled` to `true`.
+
+## Troubleshooting
+
+Find more information about how to deal with common errors related to Bitnami's Helm charts in [this troubleshooting guide](https://docs.bitnami.com/general/how-to/troubleshoot-helm-chart-issues).
 
 ## Upgrading
 
-Please always check [CHANGELOG.md][] and [BREAKING_CHANGES.md][] before
-upgrading to a new chart version.
+### To 10.0.0
 
+This major release updates Kibana its latest verstion 8.x.x.
+In addition, missing features have been added and values have been renamed, in order to get aligned with the rest of the assets in the Bitnami charts repository.
 
-## Usage notes
+Affected values:
 
-* Automated testing of this chart is currently only run against GKE (Google
-Kubernetes Engine).
+- `service.port` renamed as `service.ports.http`
+- `service.nodePort` renamed as `service.nodePorts.http`
+- `containerPort` renamed as `containerPorts.http`
 
-* This repo includes several [examples][] of configurations that can be used
-as a reference. They are also used in the automated testing of this chart.
+Changes to Security related values:
 
+- `elasticsearch.security.auth.kibanaUsername` has been removed. Kibana must be authenticates using the built-in user 'kibana_system'
+- `elasticsearch.security.auth.kibanaPassword` has to provide the password for the kibana_system user, otherwise random password will be generated.
+- `elasticsearch.security.auth.existingSecret` key kibana-password now references the password of the 'kibana_system' user.
+- Two new values have been added: `elasticsearch.security.auth.createSystemUser` and `elasticsearchPasswordSecret`. If provided, the kibana container will use the 'elastic' user to create the 'kibana_system' user, using the password provided under `elasticsearch.security.auth.kibanaPassword`.
 
-## Configuration
+### To 9.0.0
 
-| Parameter                                 | Description                                                                                                                                                                                    | Default                             |
-|-------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------|
-| `affinity`                                | Configurable [affinity][]                                                                                                                                                                      | `{}`                                |
-| `annotations`                             | Configurable [annotations][] on the deployment object                                                                                                                                          | `{}`                                |
-| `automountToken`                          | Whether or not to automount the service account token in the Pod                                                                                                                               | `true`                              |
-| `elasticsearchHosts`                      | The URLs used to connect to Elasticsearch                                                                                                                                                      | `https://elasticsearch-master:9200` |
-| `elasticsearchCertificateSecret`          | The name of the K8S [secret][kubernetes secrets] that contains the Elasticsearch certificate                                                                                                   | `elasticsearch-master-certs`        |
-| `elasticsearchCertificateAuthoritiesFile` | The name of the certificate file into the `elasticsearchCertificateSecret` K8S `secret`                                                                                                        | `ca.crt`                            |
-| `elasticsearchCredentialSecret`           | The name of the K8S [secret][kubernetes secrets] that contains the Elasticsearch credentials                                                                                                   | `elasticsearch-master-credentials`  |
-| `envFrom`                                 | Templatable string to be passed to the [environment from variables][] which will be appended to the `envFrom:` definition for the container                                                    | `[]`                                |
-| `extraContainers`                         | Templatable string of additional containers to be passed to the `tpl` function                                                                                                                 | `[]`                                |
-| `extraEnvs`                               | Extra [environment variables][] which will be appended to the `env:` definition for the container                                                                                              | see [values.yaml][]                 |
-| `extraInitContainers`                     | Templatable string of additional containers to be passed to the `tpl` function                                                                                                                 | `[]`                                |
-| `extraVolumeMounts`                       | Configuration for additional `volumeMounts`                                                                                                                                                    | `[]`                                |
-| `extraVolumes`                            | Configuration for additional `volumes`                                                                                                                                                         | `[]`                                |
-| `fullnameOverride`                        | Overrides the full name of the resources. If not set the name will default to " `.Release.Name` - `.Values.nameOverride orChart.Name` "                                                        | `""`                                |
-| `healthCheckPath`                         | The path used for the readinessProbe to check that Kibana is ready. If you are setting `server.basePath` you will also need to update this to `/${basePath}/app/kibana`                        | `/app/kibana`                       |
-| `hostAliases`                             | Configurable [hostAliases][]                                                                                                                                                                   | `[]`                                |
-| `httpPort`                                | The http port that Kubernetes will use for the healthchecks and the service                                                                                                                    | `5601`                              |
-| `imagePullPolicy`                         | The Kubernetes [imagePullPolicy][]value                                                                                                                                                        | `IfNotPresent`                      |
-| `imagePullSecrets`                        | Configuration for [imagePullSecrets][] so that you can use a private registry for your image                                                                                                   | `[]`                                |
-| `imageTag`                                | The Kibana Docker image tag                                                                                                                                                                    | `8.5.1`                             |
-| `image`                                   | The Kibana Docker image                                                                                                                                                                        | `docker.elastic.co/kibana/kibana`   |
-| `ingress`                                 | Configurable [ingress][] to expose the Kibana service.                                                                                                                                         | see [values.yaml][]                 |
-| `kibanaConfig`                            | Allows you to add any config files in `/usr/share/kibana/config/` such as `kibana.yml` See [values.yaml][] for an example of the formatting                                                    | `{}`                                |
-| `labels`                                  | Configurable [labels][] applied to all Kibana pods                                                                                                                                             | `{}`                                |
-| `lifecycle`                               | Allows you to add [lifecycle hooks][]. See [values.yaml][] for an example of the formatting                                                                                                    | `{}`                                |
-| `nameOverride`                            | Overrides the chart name for resources. If not set the name will default to `.Chart.Name`                                                                                                      | `""`                                |
-| `nodeSelector`                            | Configurable [nodeSelector][] so that you can target specific nodes for your Kibana instances                                                                                                  | `{}`                                |
-| `podAnnotations`                          | Configurable [annotations][] applied to all Kibana pods                                                                                                                                        | `{}`                                |
-| `podSecurityContext`                      | Allows you to set the [securityContext][] for the pod                                                                                                                                          | see [values.yaml][]                 |
-| `priorityClassName`                       | The name of the [PriorityClass][]. No default is supplied as the PriorityClass must be created first                                                                                           | `""`                                |
-| `protocol`                                | The protocol that will be used for the readinessProbe. Change this to `https` if you have `server.ssl.enabled: true` set                                                                       | `http`                              |
-| `readinessProbe`                          | Configuration for the readiness [probe][]                                                                                                                                                      | see [values.yaml][]                 |
-| `replicas`                                | Kubernetes replica count for the Deployment (i.e. how many pods)                                                                                                                               | `1`                                 |
-| `resources`                               | Allows you to set the [resources][] for the Deployment                                                                                                                                         | see [values.yaml][]                 |
-| `secretMounts`                            | Allows you easily mount a secret as a file inside the Deployment. Useful for mounting certificates and other secrets. See [values.yaml][] for an example                                       | `[]`                                |
-| `securityContext`                         | Allows you to set the [securityContext][] for the container                                                                                                                                    | see [values.yaml][]                 |
-| `serverHost`                              | The [server.host][] Kibana setting. This is set explicitly so that the default always matches what comes with the Docker image                                                                 | `0.0.0.0`                           |
-| `serviceAccount`                          | Allows you to overwrite the "default" [serviceAccount][] for the pod                                                                                                                           | `[]`                                |
-| `service`                                 | Configurable [service][] to expose the Kibana service.                                                                                                                                         | see [values.yaml][]                 |
-| `tolerations`                             | Configurable [tolerations][])                                                                                                                                                                  | `[]`                                |
-| `updateStrategy`                          | Allows you to change the default [updateStrategy][] for the Deployment. A [standard upgrade][] of Kibana requires a full stop and start which is why the default strategy is set to `Recreate` | `type: Recreate`                    |
+This version updates the settings used to communicate Kibana with Elasticsearch, adapting it to Elasticsearch X-Pack Security features.
 
-## FAQ
+Previous setting `elasticsearch.tls` has been replaced with `elasticsearch.security.tls.enabled`. Other settings regarding certificate verification can be found under `elasticsearch.security.tls.*`, such as verification method and custom truststore.
 
-### How to deploy this chart on a specific K8S distribution?
+Additionally, support for the Kibana server using TLS/SSL encryption (HTTPS for port 5601) has been added.
 
-This chart is highly tested with [GKE][], but some K8S distribution also
-requires specific configurations.
+### To 8.0.0
 
-We provide examples of configuration for the following K8S providers:
+The Kibana container configuration logic was migrated to bash.
 
-- [OpenShift][]
+From this version onwards, Kibana container components are now licensed under the [Elastic License](https://www.elastic.co/licensing/elastic-license) that is not currently accepted as an Open Source license by the Open Source Initiative (OSI).
 
-### How to use Kibana with security (authentication and TLS) enabled?
+Also, from now on, the Helm Chart will include the X-Pack plugin installed by default.
 
-Starting with 8.x the [default Elasticsearch Helm chart][] is automatically
-configured with security enabled (authentification and TLS).
+Regular upgrade is compatible from previous versions.
 
-As the Elasticsearch credentials and certificates are available in some
-[Kubernetes secrets][] generated by the Elasticsearch chart, the Kibana chart is
-configured to read these secrets to configure the secure connection to
-Elasticsearch (The secrets names can be overrided in the chart
-[values][values.yaml]).
+### To 6.2.0
 
-Therefore, Kibana is automatically configured to required authentication. You
-can connect to Kibana with the `elastic` user account that comes from
-Elasticsearch. The password can be find in the `elasticsearchCredentialSecret`
-(see the [chart notes][]).
+This version introduces `bitnami/common`, a [library chart](https://helm.sh/docs/topics/library_charts/#helm) as a dependency. More documentation about this new utility could be found [here](https://github.com/bitnami/charts/tree/main/bitnami/common#bitnami-common-library-chart). Please, make sure that you have updated the chart dependencies before executing any upgrade.
 
-:warning: Note that in production, the `elastic` user should only be used to
-create new users.
+### To 6.0.0
 
-This Helm chart can also use existing [Kubernetes secrets][] to set up TLS
-certificates. These secrets should be created outside of this chart and accessed
-using the [environment variables][] and volumes.
+[On November 13, 2020, Helm v2 support formally ended](https://github.com/helm/charts#status-of-the-project). This major version is the result of the required changes applied to the Helm Chart to be able to incorporate the different features added in Helm v3 and to be consistent with the Helm project itself regarding the Helm v2 EOL.
 
-An example can be found in [examples/security][].
+[Learn more about this change and related upgrade considerations](https://docs.bitnami.com/kubernetes/apps/kibana/administration/upgrade-helm3/).
 
-### How to install plugins?
+### To 5.0.0
 
-The recommended way to install plugins into our Docker images is to create a
-custom Docker image.
+This version does not include Elasticsearch as a bundled dependency. From now on, you should specify an external Elasticsearch instance using the `elasticsearch.hosts[]` and `elasticsearch.port` [parameters](#parameters).
 
-The Dockerfile would look something like this:
+### To 3.0.0
 
-```
-ARG kibana_version
-FROM docker.elastic.co/kibana/kibana:${kibana_version}
+Helm performs a lookup for the object based on its group (apps), version (v1), and kind (Deployment). Also known as its GroupVersionKind, or GVK. Changing the GVK is considered a compatibility breaker from Kubernetes' point of view, so you cannot "upgrade" those objects to the new GVK in-place. Earlier versions of Helm 3 did not perform the lookup correctly which has since been fixed to match the spec.
 
-RUN bin/kibana-plugin install <plugin_url>
-```
+In [4dfac075aacf74405e31ae5b27df4369e84eb0b0](https://github.com/bitnami/charts/commit/4dfac075aacf74405e31ae5b27df4369e84eb0b0) the `apiVersion` of the deployment resources was updated to `apps/v1` in tune with the api's deprecated, resulting in compatibility breakage.
 
-And then updating the `image` in values to point to your custom image.
+This major version signifies this change.
 
-There are a couple of reasons we recommend this:
+### To 2.0.0
 
-1. Tying the availability of Kibana to the download service to install plugins
-is not a great idea or something that we recommend. Especially in Kubernetes
-where it is normal and expected for a container to be moved to another host at
-random times.
-2. Mutating the state of a running Docker image (by installing plugins) goes
-against the best practices of containers and immutable infrastructure.
+This version enabled by default an initContainer that modify some kernel settings to meet the Elasticsearch requirements.
 
-### How to import objects post-deployment?
+Currently, Elasticsearch requires some changes in the kernel of the host machine to work as expected. If those values are not set in the underlying operating system, the ES containers fail to boot with ERROR messages. More information about these requirements can be found in the links below:
 
-You can use `postStart` [lifecycle hooks][] to run code triggered after a
-container is created.
+- [File Descriptor requirements](https://www.elastic.co/guide/en/elasticsearch/reference/current/file-descriptors.html)
+- [Virtual memory requirements](https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html)
 
-Here is an example of `postStart` hook to import an index-pattern and a
-dashboard:
+You can disable the initContainer using the `elasticsearch.sysctlImage.enabled=false` parameter.
 
-```yaml
-lifecycle:
-  postStart:
-    exec:
-      command:
-        - bash
-        - -c
-        - |
-          #!/bin/bash
-          # Import a dashboard
-          KB_URL=http://localhost:5601
-          while [[ "$(curl -s -o /dev/null -w '%{http_code}\n' -L $KB_URL)" != "200" ]]; do sleep 1; done
-          curl -XPOST "$KB_URL/api/kibana/dashboards/import" -H "Content-Type: application/json" -H 'kbn-xsrf: true' -d'{"objects":[{"type":"index-pattern","id":"my-pattern","attributes":{"title":"my-pattern-*"}},{"type":"dashboard","id":"my-dashboard","attributes":{"title":"Look at my dashboard"}}]}'
-```
+## License
 
+Copyright &copy; 2023 VMware, Inc.
 
-## Contributing
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-Please check [CONTRIBUTING.md][] before any contribution or for any questions
-about our development and testing process.
+<http://www.apache.org/licenses/LICENSE-2.0>
 
-[affinity]: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
-[annotations]: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
-[BREAKING_CHANGES.md]: https://github.com/elastic/helm-charts/blob/main/BREAKING_CHANGES.md
-[CHANGELOG.md]: https://github.com/elastic/helm-charts/blob/main/CHANGELOG.md
-[chart notes]: https://github.com/elastic/helm-charts/tree/main/kibana/templates/NOTES.txt
-[CONTRIBUTING.md]: https://github.com/elastic/helm-charts/blob/main/CONTRIBUTING.md
-[default elasticsearch helm chart]: https://github.com/elastic/helm-charts/tree/main/elasticsearch/README.md#default
-[eck-charts]: https://github.com/elastic/cloud-on-k8s/tree/master/deploy
-[elastic cloud on kubernetes]: https://github.com/elastic/cloud-on-k8s
-[environment from variables]: https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#configure-all-key-value-pairs-in-a-configmap-as-container-environment-variables
-[environment variables]: https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/#using-environment-variables-inside-of-your-config
-[examples]: https://github.com/elastic/helm-charts/tree/main/kibana/examples
-[examples/security]: https://github.com/elastic/helm-charts/tree/main/kibana/examples/security
-[gke]: https://cloud.google.com/kubernetes-engine
-[helm]: https://helm.sh
-[hostAliases]: https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
-[imagePullPolicy]: https://kubernetes.io/docs/concepts/containers/images/#updating-images
-[imagePullSecrets]: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#create-a-pod-that-uses-your-secret
-[ingress]: https://kubernetes.io/docs/concepts/services-networking/ingress/
-[kibana docker image]: https://www.elastic.co/guide/en/kibana/current/docker.html
-[kubernetes secrets]: https://kubernetes.io/docs/concepts/configuration/secret/
-[labels]: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
-[lifecycle hooks]: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
-[nodeSelector]: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
-[openshift]: https://github.com/elastic/helm-charts/tree/main/kibana/examples/openshift
-[priorityClass]: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
-[probe]: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/
-[resources]: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
-[securityContext]: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
-[server.host]: https://www.elastic.co/guide/en/kibana/current/settings.html
-[service]: https://kubernetes.io/docs/concepts/services-networking/service/
-[serviceAccount]: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
-[standard upgrade]: https://www.elastic.co/guide/en/kibana/current/upgrade-standard.html
-[supported configurations]: https://github.com/elastic/helm-charts/tree/main/README.md#supported-configurations
-[tolerations]: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
-[updateStrategy]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#updating-a-deployment
-[values.yaml]: https://github.com/elastic/helm-charts/tree/main/kibana/values.yaml
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.

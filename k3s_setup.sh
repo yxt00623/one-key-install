@@ -82,3 +82,5 @@ sudo cat /etc/rancher/k3s/k3s.yaml > ~/.kube/config
 # docker run --name mysql57 -e MYSQL_ROOT_PASSWORD=qwerty -p 23306:3306 -d mysql:5.7
 # helm pull stable/mysql --untar
 # kubectl port-forward svc/mysql 23306
+
+# kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.2.2/deploy/longhorn.yaml

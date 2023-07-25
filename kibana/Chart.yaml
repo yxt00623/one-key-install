@@ -1,12 +1,29 @@
-apiVersion: v1
-appVersion: 8.5.1
-description: Official Elastic helm chart for Kibana
-home: https://github.com/elastic/helm-charts
-icon: https://helm.elastic.co/icons/kibana.png
+annotations:
+  category: Analytics
+  licenses: Apache-2.0
+apiVersion: v2
+appVersion: 8.8.2
+dependencies:
+- name: common
+  repository: oci://registry-1.docker.io/bitnamicharts
+  tags:
+  - bitnami-common
+  version: 2.x.x
+description: Kibana is an open source, browser based analytics and search dashboard
+  for Elasticsearch. Kibana strives to be easy to get started with, while also being
+  flexible and powerful.
+home: https://bitnami.com
+icon: https://bitnami.com/assets/stacks/kibana/img/kibana-stack-220x234.png
+keywords:
+- kibana
+- analytics
+- monitoring
+- metrics
+- logs
 maintainers:
-- email: helm-charts@elastic.co
-  name: Elastic
+- name: VMware, Inc.
+  url: https://github.com/bitnami/charts
 name: kibana
 sources:
-- https://github.com/elastic/kibana
-version: 8.5.1
+- https://github.com/bitnami/charts/tree/main/bitnami/kibana
+version: 10.4.5
